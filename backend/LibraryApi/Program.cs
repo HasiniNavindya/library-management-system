@@ -1,8 +1,15 @@
+using Microsoft.EntityFrameworkCore;
+using LibraryApi.Data;
+using LibraryApi.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// Register SQLite + DbContext here
+builder.Services.AddDbContext<LibraryContext>(options =>
+    options.UseSqlite("Data Source=library.db"));
 
 var app = builder.Build();
 
@@ -32,6 +39,64 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 })
 .WithName("GetWeatherForecast");
+
+// GET all books
+app.MapGet("/books", async (LibraryContext db) =>
+    await db.Books.ToListAsync());
+
+// GET book by id
+app.MapGet("/books/{id}", async (int id, LibraryContext db) =>
+{
+    var book = await db.Books.FindAsync(id);
+    return book is not null ? Results.Ok(book) : Results.NotFound();
+});
+
+// POST create new book
+app.MapPost("/books", async (Book book, LibraryContext db) =>
+{
+    // validation
+    if (string.IsNullOrWhiteSpace(book.Title) || string.IsNullOrWhiteSpace(book.Author))
+        return Results.BadRequest(new { message = "Title and Author are required" });
+
+    db.Books.Add(book);
+    await db.SaveChangesAsync();
+    return Results.Created($"/books/{book.Id}", book);
+});
+
+// PUT update book by id
+app.MapPut("/books/{id}", async (int id, Book updatedBook, LibraryContext db) =>
+{
+    var book = await db.Books.FindAsync(id);
+
+    if (book is null)
+        return Results.NotFound();
+
+    if (string.IsNullOrWhiteSpace(updatedBook.Title) || string.IsNullOrWhiteSpace(updatedBook.Author))
+        return Results.BadRequest(new { message = "Title and Author are required" });
+
+    book.Title = updatedBook.Title;
+    book.Author = updatedBook.Author;
+    book.Description = updatedBook.Description;
+
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+});
+
+// DELETE remove book by id
+app.MapDelete("/books/{id}", async (int id, LibraryContext db) =>
+{
+    var book = await db.Books.FindAsync(id);
+
+    if (book is null)
+        return Results.NotFound();
+
+    db.Books.Remove(book);
+    await db.SaveChangesAsync();
+
+    return Results.NoContent();
+});
+
+
 
 app.Run();
 
