@@ -9,7 +9,7 @@ using LibraryApi.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-var jwtKey = builder.Configuration["JwtKey"] ?? "super_secret_key_12345"; // demo key
+var jwtKey = builder.Configuration["JwtKey"] ?? "super_secret_key_minimum_32_characters_long_for_HS256"; // demo key (must be at least 32 chars for HS256)
 var keyBytes = Encoding.UTF8.GetBytes(jwtKey);
 
 builder.Services.AddAuthentication(options =>
@@ -83,19 +83,28 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast");
 
 // REGISTER (Sign Up)
-app.MapPost("/auth/register", async (LoginRequest request, LibraryContext db) =>
+app.MapPost("/auth/register", async (RegisterRequest request, LibraryContext db) =>
 {
-    if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
-        return Results.BadRequest(new { message = "Username and password are required" });
+    if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.Email) ||
+        string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+        return Results.BadRequest(new { message = "All fields are required" });
 
-    var existing = await db.Users
+    var existingUsername = await db.Users
         .FirstOrDefaultAsync(u => u.Username == request.Username);
 
-    if (existing is not null)
+    if (existingUsername is not null)
         return Results.BadRequest(new { message = "Username already exists" });
+
+    var existingEmail = await db.Users
+        .FirstOrDefaultAsync(u => u.Email == request.Email);
+
+    if (existingEmail is not null)
+        return Results.BadRequest(new { message = "Email already exists" });
 
     var user = new User
     {
+        Name = request.Name,
+        Email = request.Email,
         Username = request.Username,
         PasswordHash = PasswordHelper.HashPassword(request.Password)
     };
@@ -138,25 +147,37 @@ app.MapPost("/auth/login", async (LoginRequest request, LibraryContext db) =>
 
 
 // GET all books
-app.MapGet("/books", async (LibraryContext db) =>
-    await db.Books.ToListAsync())
-    .RequireAuthorization();
+app.MapGet("/books", async (HttpContext context, LibraryContext db) =>
+{
+    var userId = context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    if (userId == null) return Results.Unauthorized();
+    
+    return Results.Ok(await db.Books.Where(b => b.UserId == int.Parse(userId)).ToListAsync());
+})
+.RequireAuthorization();
 
 // GET book by id
-app.MapGet("/books/{id}", async (int id, LibraryContext db) =>
+app.MapGet("/books/{id}", async (int id, HttpContext context, LibraryContext db) =>
 {
-    var book = await db.Books.FindAsync(id);
+    var userId = context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    if (userId == null) return Results.Unauthorized();
+    
+    var book = await db.Books.FirstOrDefaultAsync(b => b.Id == id && b.UserId == int.Parse(userId));
     return book is not null ? Results.Ok(book) : Results.NotFound();
 })
 .RequireAuthorization();
 
 // POST create new book
-app.MapPost("/books", async (Book book, LibraryContext db) =>
+app.MapPost("/books", async (Book book, HttpContext context, LibraryContext db) =>
 {
+    var userId = context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    if (userId == null) return Results.Unauthorized();
+    
     // validation
     if (string.IsNullOrWhiteSpace(book.Title) || string.IsNullOrWhiteSpace(book.Author))
         return Results.BadRequest(new { message = "Title and Author are required" });
 
+    book.UserId = int.Parse(userId);
     db.Books.Add(book);
     await db.SaveChangesAsync();
     return Results.Created($"/books/{book.Id}", book);
@@ -164,9 +185,12 @@ app.MapPost("/books", async (Book book, LibraryContext db) =>
 .RequireAuthorization();
 
 // PUT update book by id
-app.MapPut("/books/{id}", async (int id, Book updatedBook, LibraryContext db) =>
+app.MapPut("/books/{id}", async (int id, Book updatedBook, HttpContext context, LibraryContext db) =>
 {
-    var book = await db.Books.FindAsync(id);
+    var userId = context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    if (userId == null) return Results.Unauthorized();
+    
+    var book = await db.Books.FirstOrDefaultAsync(b => b.Id == id && b.UserId == int.Parse(userId));
 
     if (book is null)
         return Results.NotFound();
@@ -184,9 +208,12 @@ app.MapPut("/books/{id}", async (int id, Book updatedBook, LibraryContext db) =>
 .RequireAuthorization();
 
 // DELETE remove book by id
-app.MapDelete("/books/{id}", async (int id, LibraryContext db) =>
+app.MapDelete("/books/{id}", async (int id, HttpContext context, LibraryContext db) =>
 {
-    var book = await db.Books.FindAsync(id);
+    var userId = context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    if (userId == null) return Results.Unauthorized();
+    
+    var book = await db.Books.FirstOrDefaultAsync(b => b.Id == id && b.UserId == int.Parse(userId));
 
     if (book is null)
         return Results.NotFound();
@@ -206,3 +233,6 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }
+
+record RegisterRequest(string Name, string Email, string Username, string Password);
+record LoginRequest(string Username, string Password);

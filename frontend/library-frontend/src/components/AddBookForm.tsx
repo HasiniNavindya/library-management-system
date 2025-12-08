@@ -50,18 +50,28 @@ export default function AddBookForm({ onBookAdded, bookToEdit }: Props) {
       return;
     }
 
+    const token = localStorage.getItem("token");
+
     if (bookToEdit) {
       await fetch(`http://localhost:5043/books/${bookToEdit.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(book),
       });
     } else {
       await fetch("http://localhost:5043/books", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(book),
       });
+      // Clear form after adding new book
+      setBook({ title: "", author: "", description: "" });
     }
 
     onBookAdded();

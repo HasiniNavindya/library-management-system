@@ -14,7 +14,14 @@ export default function BookList() {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
 
   const refreshBooks = () => {
-    fetch("http://localhost:5043/books")
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    fetch("http://localhost:5043/books", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((res) => res.json())
       .then((data) => setBooks(data));
   };
@@ -36,8 +43,13 @@ export default function BookList() {
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this book?")) return;
 
+    const token = localStorage.getItem("token");
+
     await fetch(`http://localhost:5043/books/${id}`, {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     refreshBooks();
