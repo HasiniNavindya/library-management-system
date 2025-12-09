@@ -7,7 +7,6 @@ interface Props {
 export default function AuthPage({ onLoginSuccess }: Props) {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -21,7 +20,7 @@ export default function AuthPage({ onLoginSuccess }: Props) {
 
     // Validation for signup
     if (mode === "signup") {
-      if (!name || !email || !username || !password || !confirmPassword) {
+      if (!name || !username || !password || !confirmPassword) {
         setError("All fields are required");
         return;
       }
@@ -44,7 +43,7 @@ export default function AuthPage({ onLoginSuccess }: Props) {
       const body =
         mode === "login"
           ? { username, password }
-          : { name, email, username, password };
+          : { name, email: username, username, password };
 
       const res = await fetch(url, {
         method: "POST",
@@ -65,7 +64,6 @@ export default function AuthPage({ onLoginSuccess }: Props) {
         setMessage("Account created successfully. You can now log in.");
         setMode("login");
         setName("");
-        setEmail("");
         setUsername("");
         setPassword("");
         setConfirmPassword("");
@@ -109,7 +107,6 @@ export default function AuthPage({ onLoginSuccess }: Props) {
               setError("");
               setMessage("");
               setName("");
-              setEmail("");
               setUsername("");
               setPassword("");
               setConfirmPassword("");
@@ -127,18 +124,7 @@ export default function AuthPage({ onLoginSuccess }: Props) {
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter your full name"
-                  required
-                />
-              </label>
-
-              <label>
-                <span>Email</span>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
+                  placeholder="Enter name"
                   required
                 />
               </label>
@@ -148,9 +134,10 @@ export default function AuthPage({ onLoginSuccess }: Props) {
           <label>
             <span>Username</span>
             <input
+              type="email"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter username"
+              placeholder="Enter email"
               required
             />
           </label>
