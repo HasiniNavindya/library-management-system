@@ -18,7 +18,7 @@ Frontend is built with React + TypeScript for a dynamic and responsive UI.
 - RESTful API endpoints for Books  
 - Modern web UI using React  
 
-*(Optional / to implement: User authentication via JWT.)*
+*(Additional Feature : User authentication via JWT.)*
 
 ---
 
@@ -100,6 +100,8 @@ The frontend UI will run at: **[http://localhost:3000](http://localhost:3000)**
 
 *(authentication Endpoints)*
 
+| Method  | Endpoint           | Description              |
+| ------  | ------------------ | ------------------------ |
 | POST    | `/auth/register`   | Register a new user      |
 | POST    | `/auth/login`      | Login & get JWT token    |
 
@@ -110,3 +112,4 @@ The frontend UI will run at: **[http://localhost:3000](http://localhost:3000)**
 **Hasini Navindya** — Software Engineering Intern Candidate at Expernetic LLC
 
 ---
+
