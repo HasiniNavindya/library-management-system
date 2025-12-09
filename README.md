@@ -1,155 +1,112 @@
 # 📚 Library Management System
 
-A simple full-stack application for managing books in a library.
-Users can **create, view, update, and delete** book records.
-This project was developed as part of the **Software Engineering Internship Assignment**.
+A full-stack web application to manage library books.
+
+Users can **create, view, update, and delete** book records.  
+Backend is built with .NET + SQLite + Entity Framework Core.  
+Frontend is built with React + TypeScript for a dynamic and responsive UI.
 
 ---
 
 ## ✨ Features
 
-✔ Add new books
-✔ View all books
-✔ Edit existing books
-✔ Delete books
-✔ SQLite database with Entity Framework
-✔ Responsive React UI
-✔ Clean and modern interface
+- Add new books  
+- View list of existing books  
+- Edit / update book details  
+- Delete book records  
+- Persistent storage using SQLite  
+- RESTful API endpoints for Books  
+- Modern web UI using React  
 
-> Optional: Authentication
+*(Optional / to implement: User authentication via JWT.)*
 
 ---
 
 ## 🛠️ Tech Stack
 
-### 🔧 Backend
+**Backend**  
+- .NET 8  
+- C#  
+- Entity Framework Core  
+- SQLite  
 
-* ASP.NET Core (.NET 8)
-* C#
-* Entity Framework Core
-* SQLite
-
-### 🎨 Frontend
-
-* React
-* TypeScript
-* CSS
+**Frontend**  
+- React  
+- TypeScript  
+- CSS / HTML  
 
 ---
 
 ## 📁 Project Structure
 
 ```
+
 library-management-system/
 │
 ├── backend/
-│   └── LibraryApi/
-│       ├── Controllers
-│       ├── Data
-│       ├── Models
-│       └── library.db
+│   └── LibraryApi/        # .NET Web API project
+│       ├── Models/         # Book model (and optionally User if auth added)
+│       ├── Data/           # DbContext + migrations
+│       └── Program.cs      # Startup + endpoint routing
 │
-├── frontend/
+├── frontend/               # React + TypeScript app
 │   └── src/
-│       ├── components/
+│       ├── components/     # BookList, AddBookForm, (Auth components)
 │       ├── App.tsx
 │       └── index.tsx
 │
-└── README.md
-```
+└── README.md               # Project description and instructions
+
+````
 
 ---
 
-## 🚀 How to Run the Application
+## 🚀 Getting Started — Running Locally
 
-### 🖥️ Backend (API)
+### Backend
 
-1. Open terminal in:
-
-```
-backend/LibraryApi
-```
-
-2. Run migrations and start:
-
-```
+```bash
+cd backend/LibraryApi
 dotnet restore
 dotnet ef database update
 dotnet run
-```
+````
 
-Backend runs at:
-👉 [http://localhost:5043](http://localhost:5043)
+The backend server will run at: **[http://localhost:5043](http://localhost:5043)**
 
----
+### Frontend
 
-### 🌐 Frontend (React)
+Open a new terminal:
 
-1. Open terminal in:
-
-```
-frontend
-```
-
-2. Install and start:
-
-```
+```bash
+cd frontend
 npm install
 npm start
 ```
 
-Frontend runs at:
-👉 [http://localhost:3000](http://localhost:3000)
+The frontend UI will run at: **[http://localhost:3000](http://localhost:3000)**
 
 ---
 
 ## 🔗 API Endpoints
 
-| Method | Endpoint         | Description                  |
-| ------ | ---------------- | ---------------------------- |
-| GET    | `/books`         | Get all books                |
-| GET    | `/books/{id}`    | Get a book by ID             |
-| POST   | `/books`         | Add new book                 |
-| PUT    | `/books/{id}`    | Update a book                |
-| DELETE | `/books/{id}`    | Delete a book                |
-| POST   | `/auth/register` | Create new user              |
-| POST   | `/auth/login`    |Authenticate and return JWT   |
+| Method | Endpoint      | Description         |
+| ------ | ------------- | ------------------- |
+| GET    | `/books`      | Get all books       |
+| GET    | `/books/{id}` | Get a book by ID    |
+| POST   | `/books`      | Create a new book   |
+| PUT    | `/books/{id}` | Update a book by ID |
+| DELETE | `/books/{id}` | Delete a book by ID |
 
----
+*(authentication Endpoints)*
 
-## 🧪 Validation & Error Handling
-
-* Required fields: **Title & Author**
-* Handles not found responses (`404`)
-* Returns proper HTTP status codes
-
----
-
-## 📄 Report
-
-✔ A detailed project report is included:
-
-```
-/report/LibraryManagementSystem_Report.pdf
-```
+| POST    | `/auth/register`   | Register a new user      |
+| POST    | `/auth/login`      | Login & get JWT token    |
 
 ---
 
 ## 👩‍💻 Author
 
-**Hasini Navindya**
-Software Engineering Intern Candidate
+**Hasini Navindya** — Software Engineering Intern Candidate at Expernetic LLC
 
 ---
-
-## ⭐ Conclusion
-
-This project demonstrates:
-
-* Ability to work independently
-* Good understanding of **.NET, React & SQLite**
-* Clean code structure
-* Full working CRUD application
-
----
-
