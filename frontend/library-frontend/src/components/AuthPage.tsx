@@ -6,7 +6,7 @@ interface Props {
 
 export default function AuthPage({ onLoginSuccess }: Props) {
   const [mode, setMode] = useState<"login" | "signup">("login");
-  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -20,7 +20,7 @@ export default function AuthPage({ onLoginSuccess }: Props) {
 
     // Validation for signup
     if (mode === "signup") {
-      if (!name || !username || !password || !confirmPassword) {
+      if (!email || !username || !password || !confirmPassword) {
         setError("All fields are required");
         return;
       }
@@ -43,7 +43,7 @@ export default function AuthPage({ onLoginSuccess }: Props) {
       const body =
         mode === "login"
           ? { username, password }
-          : { name, email: username, username, password };
+          : { email, username, password };
 
       const res = await fetch(url, {
         method: "POST",
@@ -63,7 +63,7 @@ export default function AuthPage({ onLoginSuccess }: Props) {
       if (mode === "signup") {
         setMessage("Account created successfully. You can now log in.");
         setMode("login");
-        setName("");
+        setEmail("");
         setUsername("");
         setPassword("");
         setConfirmPassword("");
@@ -81,9 +81,27 @@ export default function AuthPage({ onLoginSuccess }: Props) {
   };
 
   return (
-    <div className="page">
-      <div className="card" style={{ maxWidth: 420, margin: "40px auto" }}>
-        <h3 className="card-title">
+    <div style={{
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "0 20px 20px",
+      background: "transparent"
+    }}>
+      <div 
+        className="card" 
+        style={{ 
+          maxWidth: 450, 
+          width: "100%",
+          backgroundColor: "rgba(255, 255, 255, 0.75)",
+          backdropFilter: "blur(15px)",
+          WebkitBackdropFilter: "blur(15px)",
+          boxShadow: "0 30px 80px rgba(0, 0, 0, 0.4)",
+          border: "1px solid rgba(255, 255, 255, 0.3)"
+        }}
+      >
+        <h3 className="card-title" style={{ color: "#1f2937", fontWeight: "700" }}>
           {mode === "login" ? "Login" : "Create Account"}
         </h3>
 
@@ -106,7 +124,7 @@ export default function AuthPage({ onLoginSuccess }: Props) {
               setMode("signup");
               setError("");
               setMessage("");
-              setName("");
+              setEmail("");
               setUsername("");
               setPassword("");
               setConfirmPassword("");
@@ -117,30 +135,29 @@ export default function AuthPage({ onLoginSuccess }: Props) {
         </div>
 
         <form className="form" onSubmit={handleSubmit}>
-          {mode === "signup" && (
-            <>
-              <label>
-                <span>Name</span>
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter name"
-                  required
-                />
-              </label>
-            </>
-          )}
-
           <label>
             <span>Username</span>
             <input
-              type="email"
+              type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter email"
+              placeholder="Enter username"
               required
             />
           </label>
+
+          {mode === "signup" && (
+            <label>
+              <span>Email</span>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter email"
+                required
+              />
+            </label>
+          )}
 
           <label>
             <span>Password</span>

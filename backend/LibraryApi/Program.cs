@@ -49,6 +49,9 @@ builder.Services.AddDbContext<LibraryContext>(options =>
 
 var app = builder.Build();
 
+// Use CORS first (before other middleware)
+app.UseCors("AllowFrontend");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -58,10 +61,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-// Use CORS
-app.UseCors("AllowFrontend");
-
-app.UseHttpsRedirection();
+// Comment out HTTPS redirection for local development
+// app.UseHttpsRedirection();
 
 var summaries = new[]
 {
@@ -85,7 +86,7 @@ app.MapGet("/weatherforecast", () =>
 // REGISTER (Sign Up)
 app.MapPost("/auth/register", async (RegisterRequest request, LibraryContext db) =>
 {
-    if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.Email) ||
+    if (string.IsNullOrWhiteSpace(request.Email) ||
         string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
         return Results.BadRequest(new { message = "All fields are required" });
 
@@ -103,7 +104,7 @@ app.MapPost("/auth/register", async (RegisterRequest request, LibraryContext db)
 
     var user = new User
     {
-        Name = request.Name,
+        Name = request.Name ?? request.Username,
         Email = request.Email,
         Username = request.Username,
         PasswordHash = PasswordHelper.HashPassword(request.Password)
@@ -201,6 +202,7 @@ app.MapPut("/books/{id}", async (int id, Book updatedBook, HttpContext context, 
     book.Title = updatedBook.Title;
     book.Author = updatedBook.Author;
     book.Description = updatedBook.Description;
+    book.ImageUrl = updatedBook.ImageUrl;
 
     await db.SaveChangesAsync();
     return Results.NoContent();
@@ -234,5 +236,5 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }
 
-record RegisterRequest(string Name, string Email, string Username, string Password);
+record RegisterRequest(string? Name, string Email, string Username, string Password);
 record LoginRequest(string Username, string Password);
