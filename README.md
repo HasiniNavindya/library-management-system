@@ -10,30 +10,35 @@ Frontend is built with React + TypeScript for a dynamic and responsive UI.
 
 ## ✨ Features
 
-- Add new books  
-- View list of existing books  
-- Edit / update book details  
-- Delete book records  
-- Persistent storage using SQLite  
-- RESTful API endpoints for Books  
-- Modern web UI using React  
-
-*(Additional Feature : User authentication via JWT.)*
+- **User Authentication**: Secure login and registration with JWT tokens
+- **Landing Page**: Beautiful welcome page for new visitors
+- **Book Management**:
+  - Add new books with title, author, ISBN, and cover image URLs
+  - View all books in an organized list with cover images
+  - Edit and update book details
+  - Delete book records
+- **Book Images**: Display book cover images using image URLs
+- **User-Specific Books**: Each user can manage their own book collection
+- **Persistent Storage**: SQLite database with Entity Framework Core
+- **RESTful API**: Clean API endpoints for all operations
+- **Modern UI**: Responsive React interface with TypeScript
 
 ---
 
 ## 🛠️ Tech Stack
 
 **Backend**  
-- .NET 8  
+- .NET 10.0  
 - C#  
 - Entity Framework Core  
 - SQLite  
+- JWT Authentication
 
 **Frontend**  
-- React  
+- React 18  
 - TypeScript  
-- CSS / HTML  
+- CSS3 / HTML5  
+- Responsive Design  
 
 ---
 
@@ -44,18 +49,22 @@ Frontend is built with React + TypeScript for a dynamic and responsive UI.
 library-management-system/
 │
 ├── backend/
-│   └── LibraryApi/        # .NET Web API project
-│       ├── Models/         # Book model (and optionally User if auth added)
-│       ├── Data/           # DbContext + migrations
-│       └── Program.cs      # Startup + endpoint routing
+│   └── LibraryApi/           # .NET Web API project
+│       ├── Models/            # Book, User, LoginRequest models
+│       ├── Data/              # DbContext + migrations
+│       ├── Services/          # PasswordHelper for authentication
+│       ├── Migrations/        # Database migrations
+│       └── Program.cs         # Startup + endpoint routing + JWT config
 │
-├── frontend/               # React + TypeScript app
-│   └── src/
-│       ├── components/     # BookList, AddBookForm, (Auth components)
-│       ├── App.tsx
-│       └── index.tsx
+├── frontend/
+│   └── library-frontend/     # React + TypeScript app
+│       ├── public/            # Static assets (images, index.html)
+│       └── src/
+│           ├── components/    # LandingPage, BookList, AddBookForm, AuthPage
+│           ├── App.tsx        # Main application component
+│           └── index.tsx      # Entry point
 │
-└── README.md               # Project description and instructions
+└── README.md                  # Project documentation
 
 ````
 
@@ -79,31 +88,65 @@ The backend server will run at: **[http://localhost:5043](http://localhost:5043)
 Open a new terminal:
 
 ```bash
-cd frontend
+cd frontend/library-frontend
 npm install
 npm start
 ```
 
 The frontend UI will run at: **[http://localhost:3000](http://localhost:3000)**
 
+> **Note**: Make sure the backend is running before starting the frontend to enable full functionality.
+
 ---
 
 ## 🔗 API Endpoints
 
-| Method | Endpoint      | Description         |
-| ------ | ------------- | ------------------- |
-| GET    | `/books`      | Get all books       |
-| GET    | `/books/{id}` | Get a book by ID    |
-| POST   | `/books`      | Create a new book   |
-| PUT    | `/books/{id}` | Update a book by ID |
-| DELETE | `/books/{id}` | Delete a book by ID |
+### Books
 
-*(authentication Endpoints)*
+| Method | Endpoint      | Description         | Auth Required |
+| ------ | ------------- | ------------------- | ------------- |
+| GET    | `/books`      | Get all books       | Yes           |
+| GET    | `/books/{id}` | Get a book by ID    | Yes           |
+| POST   | `/books`      | Create a new book   | Yes           |
+| PUT    | `/books/{id}` | Update a book by ID | Yes           |
+| DELETE | `/books/{id}` | Delete a book by ID | Yes           |
 
-| Method  | Endpoint           | Description              |
-| ------  | ------------------ | ------------------------ |
-| POST    | `/auth/register`   | Register a new user      |
-| POST    | `/auth/login`      | Login & get JWT token    |
+**Book Model**:
+```json
+{
+  "id": 1,
+  "title": "Sample Book",
+  "author": "John Doe",
+  "isbn": "978-1234567890",
+  "imageUrl": "https://example.com/cover.jpg",
+  "userId": 1
+}
+```
+
+### Authentication
+
+| Method  | Endpoint           | Description              | Auth Required |
+| ------  | ------------------ | ------------------------ | ------------- |
+| POST    | `/auth/register`   | Register a new user      | No            |
+| POST    | `/auth/login`      | Login & get JWT token    | No            |
+
+**Register/Login Request**:
+```json
+{
+  "username": "user@example.com",
+  "password": "securepassword"
+}
+```
+
+**Login Response**:
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "userId": 1,
+  "name": "John Doe",
+  "email": "user@example.com"
+}
+```
 
 ---
 
