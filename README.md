@@ -150,9 +150,4 @@ The frontend UI will run at: **[http://localhost:3000](http://localhost:3000)**
 
 ---
 
-## 👩‍💻 Author
-
-**Hasini Navindya** — Software Engineering Intern Candidate at Expernetic LLC
-
----
 

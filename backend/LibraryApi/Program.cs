@@ -153,7 +153,10 @@ app.MapGet("/books", async (HttpContext context, LibraryContext db) =>
     var userId = context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
     if (userId == null) return Results.Unauthorized();
     
-    return Results.Ok(await db.Books.Where(b => b.UserId == int.Parse(userId)).ToListAsync());
+    return Results.Ok(await db.Books
+        .Where(b => b.UserId == int.Parse(userId))
+        .OrderByDescending(b => b.Id)
+        .ToListAsync());
 })
 .RequireAuthorization();
 
